@@ -1,0 +1,34 @@
+# Системные файлы Docker и Git
+.git
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Конфигурационные файлы
+.env
+.env.*
+.gemini.md
+
+# Python кэш и байткод
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Локальные виртуальные окружения
+venv/
+.venv/
+env/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Локальные IDE настройки
+.vscode/
+.idea/
+*.swp
+*.swo
