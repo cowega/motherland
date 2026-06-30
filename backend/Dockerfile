@@ -46,8 +46,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Скопировать установленное виртуальное окружение из builder-стадии
 COPY --from=builder /opt/venv /opt/venv
 
-# Скопировать исходный код бэкенда
+# Скопировать исходный код бэкенда и файлы миграций
 COPY app/ ./app/
+COPY alembic.ini ./
+COPY migrations/ ./migrations/
 
 # Создание и переключение на безопасность: запуск от не-root пользователя
 RUN useradd --create-home --shell /bin/bash appuser && \
@@ -56,5 +58,5 @@ USER appuser
 
 EXPOSE ${PORT}
 
-# Запуск приложения
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Запуск миграций и приложения
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
