@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 
 from app.core.config import settings
 from app.exceptions.business_exception import BusinessException
+from app.api.v1.router import api_router
 
 app = FastAPI(
     title="Малая Родина API",
@@ -21,6 +22,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(api_router, prefix="/api/v1")
+
 
 @app.exception_handler(BusinessException)
 async def business_exception_handler(request: Request, exc: BusinessException) -> JSONResponse:
@@ -28,3 +31,4 @@ async def business_exception_handler(request: Request, exc: BusinessException) -
         status_code=exc.status_code,
         content={"detail": exc.detail}
     )
+
