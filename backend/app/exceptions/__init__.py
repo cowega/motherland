@@ -7,6 +7,7 @@ from app.exceptions.video_duration_exceeded_exception import VideoDurationExceed
 from app.exceptions.video_size_exceeded_exception import VideoSizeExceededException
 from app.exceptions.access_denied_exception import AccessDeniedException
 from app.exceptions.invalid_credentials_exception import InvalidCredentialsException
+from app.exceptions.coordinates_required_exception import CoordinatesRequiredException
 
 __all__ = [
     "BusinessException",
@@ -18,4 +19,5 @@ __all__ = [
     "VideoSizeExceededException",
     "AccessDeniedException",
     "InvalidCredentialsException",
+    "CoordinatesRequiredException",
 ]
