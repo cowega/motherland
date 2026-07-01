@@ -26,18 +26,21 @@ async def get_current_user_optional(
 ) -> Optional[User]:
     if not token:
         return None
-    payload = decode_access_token(token)
-    if not payload:
-        raise AccessDeniedException()
-    user_id = payload.get("sub")
-    if not user_id:
-        raise AccessDeniedException()
+    try:
+        payload = decode_access_token(token)
+        if not payload:
+            return None
+        user_id = payload.get("sub")
+        if not user_id:
+            return None
+        # Проверяем формат UUID, чтобы не упасть на запросе к БД
+        UUID(str(user_id))
+    except (ValueError, TypeError, Exception):
+        return None
+
     query = select(User).where(User.id == user_id)
     result = await db.execute(query)
-    user = result.scalars().first()
-    if not user:
-        raise AccessDeniedException()
-    return user
+    return result.scalars().first()
 
 
 @router.post("/", response_model=MemoryResponse, status_code=status.HTTP_201_CREATED)

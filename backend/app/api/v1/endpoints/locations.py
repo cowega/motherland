@@ -11,7 +11,15 @@ from app.models.resident import Resident
 from app.models.user import User
 from app.schemas.location import LocationCreate, LocationResponse
 from app.api.deps import get_current_user
-from app.exceptions import LocationNotFoundException, CoordinatesRequiredException
+from app.exceptions import (
+    LocationNotFoundException,
+    CoordinatesRequiredException,
+    ParentLocationRequiredException,
+    InvalidStreetParentException,
+    InvalidBuildingParentException,
+    InvalidRoomParentException,
+    InvalidSettlementParentException
+)
 
 router = APIRouter()
 
@@ -26,12 +34,25 @@ async def create_location(
         if not location_in.coordinates:
             raise CoordinatesRequiredException()
 
+    if location_in.type != LocationType.settlement:
+        if location_in.parent_id is None:
+            raise ParentLocationRequiredException()
+
     if location_in.parent_id is not None:
         parent_query = select(Location).where(Location.id == location_in.parent_id)
         parent_result = await db.execute(parent_query)
-        parent_exists = parent_result.scalars().first()
-        if not parent_exists:
+        parent = parent_result.scalars().first()
+        if not parent:
             raise LocationNotFoundException()
+
+        if location_in.type == LocationType.street and parent.type != LocationType.settlement:
+            raise InvalidStreetParentException()
+        elif location_in.type == LocationType.building and parent.type != LocationType.street:
+            raise InvalidBuildingParentException()
+        elif location_in.type == LocationType.room and parent.type != LocationType.building:
+            raise InvalidRoomParentException()
+        elif location_in.type == LocationType.settlement and parent.type != LocationType.settlement:
+            raise InvalidSettlementParentException()
 
     db_location = Location(
         type=location_in.type,
